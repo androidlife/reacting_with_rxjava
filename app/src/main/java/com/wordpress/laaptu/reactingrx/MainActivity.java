@@ -3,6 +3,7 @@ package com.wordpress.laaptu.reactingrx;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import com.wordpress.laaptu.reactingrx.basics.ProducerConsumerFragment;
+import com.wordpress.laaptu.reactingrx.basics.SubscribeObserveAgain;
 import com.wordpress.laaptu.reactingrx.basics.SubscribeObserveFragment;
 import com.wordpress.laaptu.reactingrx.basics.SubscriberOtherMethodsFragment;
 
@@ -30,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
 
   private void subscribeObserveTest() {
     getSupportFragmentManager().beginTransaction()
-        .replace(R.id.container, SubscribeObserveFragment.getInstance(null))
+        .replace(R.id.container, SubscribeObserveAgain.getInstance(null))
         .commit();
   }
 }

@@ -55,7 +55,7 @@ public class ProducerConsumerFragment extends Fragment {
 
   private void basicSubscribeTestWithLambda() {
     Action1<String> subscriber1 = s -> System.out.println("First subscriber onNext() = " + s);
-    Subscriber<String> subscriber2 = new Subscriber<String>() {
+    Subscriber<String> me = new Subscriber<String>() {
       @Override public void onCompleted() {
 
       }
@@ -65,11 +65,11 @@ public class ProducerConsumerFragment extends Fragment {
       }
 
       @Override public void onNext(String s) {
-        System.out.println("Second subscriber onNext() = " + s);
+        System.out.println("New message from MKBHD =  " + s);
       }
     };
-    Subscription subscription = stringObservable1.subscribe(subscriber1);
-    Subscription subscription1 = stringObservable1.subscribe(subscriber2);
+    Subscription subscription = channelMKBHD.subscribe(subscriber1);
+    Subscription subscription1 = channelMKBHD.subscribe(me);
   }
 
   /**
@@ -99,8 +99,8 @@ public class ProducerConsumerFragment extends Fragment {
         }
       });
 
-  private Observable<String> stringObservable1 = Observable.create(s -> {
-    s.onNext("Producer sending first message");
+  private Observable<String> channelMKBHD = Observable.create(s -> {
+    s.onNext("I have a new video on my channel. Please watch it");
     new Handler().postDelayed(() -> {
       s.onNext("Producer sending second message");
     }, 1000);

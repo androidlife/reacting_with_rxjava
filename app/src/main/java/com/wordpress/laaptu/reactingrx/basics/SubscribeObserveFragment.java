@@ -11,6 +11,7 @@ import android.widget.TextView;
 import com.wordpress.laaptu.reactingrx.R;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 import rx.Observable;
 import rx.Scheduler;
 import rx.Subscriber;
@@ -20,16 +21,11 @@ import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
 /**
- * So far what I found is that
- * subscribeOn() is only once, no matter how many you add
- * Need to find out which one gets called
- * subscribeOn() doesn't mean that Observable() action
- *  like fetching data will one the defined thread
- *  Instead it defines in which thread the result needs to be passed
- *  or simply, the thread for the interface
- *  call(), of the OnSubscribe, any function called from
- *  call() method will be on that thread, until and unless
- *  observeOn() is called
+ * So far what I found is that subscribeOn() is only once, no matter how many you add Need to find
+ * out which one gets called subscribeOn() doesn't mean that Observable() action like fetching data
+ * will one the defined thread Instead it defines in which thread the result needs to be passed or
+ * simply, the thread for the interface call(), of the OnSubscribe, any function called from call()
+ * method will be on that thread, until and unless observeOn() is called
  */
 
 public class SubscribeObserveFragment extends Fragment {
@@ -63,7 +59,7 @@ public class SubscribeObserveFragment extends Fragment {
 
   private void subscribeTest() {
     someObservable.subscribeOn(Schedulers.io()).subscribe(subscriber);
-    new Handler().postDelayed(()-> customOnSubscribe.doSomeTask(),3000);
+    new Handler().postDelayed(() -> customOnSubscribe.doSomeTask(), 3000);
   }
 
   private CustomOnSubscribe customOnSubscribe = new CustomOnSubscribe();
@@ -97,12 +93,18 @@ public class SubscribeObserveFragment extends Fragment {
       }
 
       @Override public void onNext(String s) {
-        System.out.println("Second subscriber onNext() = " + s);
-        txtInfo.setText(s);
+        onNextMain(s);
       }
     };
     Subscription subscription1 =
-        stringObservable1.subscribeOn(Schedulers.io()).subscribe(subscriber2);
+        stringObservable1.subscribeOn(Schedulers.io())
+            .subscribeOn(AndroidSchedulers.mainThread())
+            .subscribe(subscriber2);
+  }
+
+  private void onNextMain(String s) {
+    System.out.println("Second subscriber onNext() = " + s);
+    txtInfo.setText(s);
   }
 
   private Observable<String> stringObservable1 = Observable.create(s -> {
@@ -110,6 +112,18 @@ public class SubscribeObserveFragment extends Fragment {
     //new Handler().postDelayed(() -> {
     //  s.onNext("Producer sending second message");
     //}, 1000);
+  });
+
+  private Observable<String> newObservable = Observable.fromCallable(new Callable<String>() {
+    @Override public String call() throws Exception {
+      String someString = "From callable";
+      return someString;
+    }
+  });
+
+  private Observable<String> getNewObservable1 = Observable.fromCallable(() -> {
+    String someString = "From new observable";
+    return someString;
   });
 
   private class CustomOnSubscribe implements Observable.OnSubscribe<String> {
