@@ -7,7 +7,7 @@
 /build
 /captures
 .externalNativeBuild
-
+out/
 
 ## For Jupyter Notebook
 
